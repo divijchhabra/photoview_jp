@@ -5,35 +5,35 @@ import 'package:demo_app_flutter/data_fields.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
-
 class PeerToPeerQuestionImageApi {
   static RxString status = "Loading".obs;
 
-  static void fetchQuestionImage(id) async {
+  static Future<String> fetchQuestionImage(id) async {
     if (DataFields.isInternetOn.value) {
-      var url = Uri.parse(Constants.baseApiUrl + "written/peer-to-peer-get-all-images/$id/");
-      var response = await http.get(url,
-          headers: {"Authorization": "Token " + DataFields.token});
+      var url = Uri.parse(
+          "${Constants.baseApiUrl}written/peer-to-peer-get-all-images/$id/");
+      var response = await http
+          .get(url, headers: {"Authorization": "Token ${DataFields.token}"});
       if (response.statusCode == 200) {
-        DataFields.teacherQuestionImage = questionsImageFromJson(utf8.decode(response.bodyBytes));
-        status.value = "Loaded";
+        DataFields.teacherQuestionImage =
+            questionsImageFromJson(utf8.decode(response.bodyBytes));
+        PeerToPeerQuestionImageApi.status.value = "Loaded";
+        return DataFields.teacherQuestionImage[0].image ?? "";
       } else {
         status.value = "Error";
       }
     } else {
       status.value = "Error";
     }
+    return "";
   }
-
-
-
-
 
   static Future getTopicAnddemoData(id) async {
     if (DataFields.isInternetOn.value) {
-      var url = Uri.parse(Constants.baseApiUrl + "written/get-topic-and-question-from-answersheet/$id/");
-      var response = await http.get(url,
-          headers: {"Authorization": "Token " + DataFields.token});
+      var url = Uri.parse(
+          "${Constants.baseApiUrl}written/get-topic-and-question-from-answersheet/$id/");
+      var response = await http
+          .get(url, headers: {"Authorization": "Token ${DataFields.token}"});
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(utf8.decode(response.bodyBytes));
       } else {
@@ -46,7 +46,6 @@ class PeerToPeerQuestionImageApi {
       return "error";
     }
   }
-
 }
 
 List<QuestionsImage> questionsImageFromJson(String str) =>
@@ -68,14 +67,14 @@ class QuestionsImage {
   int? imageOrder;
 
   factory QuestionsImage.fromJson(Map<String, dynamic> json) => QuestionsImage(
-    id: json["id"],
-    image: json["image"],
-    imageOrder: json["image_order"],
-  );
+        id: json["id"],
+        image: json["image"],
+        imageOrder: json["image_order"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "image": image,
-    "image_order": imageOrder,
-  };
+        "id": id,
+        "image": image,
+        "image_order": imageOrder,
+      };
 }

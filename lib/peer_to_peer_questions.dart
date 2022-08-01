@@ -7,7 +7,6 @@ import 'package:demo_app_flutter/peer_to_peer_photo_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-
 //UserMark ID
 
 class PeerToPeerQuestion extends StatefulWidget {
@@ -65,7 +64,7 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                             .teacherQuestion.response?.questions?.length,
                         itemBuilder: (BuildContext context, int index) {
                           return Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 8),
                             child: Column(
                               children: [
@@ -75,7 +74,7 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                                         MainAxisAlignment.spaceAround,
                                     children: [
                                       Padding(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 10),
                                         child: Center(
                                           child: Text(
@@ -85,13 +84,13 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                                                     ?.questions?[index]
                                                     .question ??
                                                 "",
-                                            style: TextStyle(
-                                                fontSize: 12),
+                                            style:
+                                                const TextStyle(fontSize: 12),
                                           ),
                                         ),
                                       ),
                                       Padding(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 12),
                                         child: Row(
                                           mainAxisAlignment:
@@ -106,15 +105,14 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                                                       false
                                                   ? "Marks: -- / ${DataFields.teacherQuestion.response?.questions?[index].realMark}"
                                                   : "Marks: ${DataFields.teacherQuestion.response?.questions?[index].providedMarks} / ${DataFields.teacherQuestion.response?.questions?[index].realMark}",
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 14,
                                                 color: FontColor.buttonPrimary,
-
                                               ),
                                             ),
                                             Text(
                                               "📷 ${DataFields.teacherQuestion.response?.questions?[index].image_count}",
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 14,
                                                 color: FontColor.buttonPrimary,
                                               ),
@@ -127,28 +125,29 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                                   width: MediaQuery.of(context).size.width,
                                   decoration: BoxDecoration(
                                       border: Border.all(width: 2),
-                                      borderRadius:
-                                          BorderRadius.circular(20)),
+                                      borderRadius: BorderRadius.circular(20)),
                                 ),
-                                SizedBox(
+                                const SizedBox(
                                   height: 10,
                                 ),
                                 GestureDetector(
-                                        onTap: (() {
-                                          PeerToPeerQuestionImageApi
-                                              .status.value = "Loading";
+                                    onTap: (() {
+                                      PeerToPeerQuestionImageApi.status.value =
+                                          "Loading";
 
-
-                                          Navigator.push(context, MaterialPageRoute(builder: (_) =>     PeerToPeerPhotoViewerScreen(
-                                            markID: widget.id,
-                                            id: "${DataFields.teacherQuestion.response?.questions?[index].id}",
-                                            realMark:
-                                            "${DataFields.teacherQuestion.response?.questions?[index].realMark}",
-                                            receiver: widget.receiver,
-                                          )));
-                                          
-                                        }),
-                                        child: const EditButton())
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  PeerToPeerPhotoViewerScreen(
+                                                    markID: widget.id,
+                                                    id: "${DataFields.teacherQuestion.response?.questions?[index].id}",
+                                                    realMark:
+                                                        "${DataFields.teacherQuestion.response?.questions?[index].realMark}",
+                                                    receiver: widget.receiver,
+                                                  )));
+                                    }),
+                                    child: const EditButton())
                               ],
                             ),
                           );
@@ -179,13 +178,14 @@ class EditButton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(),
-            Text(
+            const Text(
               "Edit Mark or Comment",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,),
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.white,
+              ),
             ),
-            Icon(
+            const Icon(
               Icons.arrow_forward,
               size: 15,
               color: Colors.white,
@@ -212,13 +212,11 @@ class ExamineButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               "✎  Examine",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white),
+              style: TextStyle(fontSize: 16, color: Colors.white),
             ),
-            Icon(
+            const Icon(
               Icons.arrow_forward,
               size: 15,
               color: Colors.white,
