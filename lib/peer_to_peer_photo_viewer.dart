@@ -155,7 +155,8 @@ class _PeerToPeerPhotoViewerScreenState
                                   },
                                   itemBuilder: (context, index) {
                                     return Center(
-                                      child: SizedBox(
+                                      child: InteractiveViewer(
+                                        child: Container(
                                           height: MediaQuery.of(context)
                                                   .size
                                                   .height *
@@ -164,21 +165,21 @@ class _PeerToPeerPhotoViewerScreenState
                                                   .size
                                                   .width *
                                               0.90,
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                                image: DecorationImage(
-                                                    image: NetworkImage(DataFields
-                                                            .teacherQuestionImage[
-                                                                0]
-                                                            .image ??
-                                                        ""),
-                                                    fit: BoxFit.fill),
-                                                border: Border.all(
-                                                  width: 2,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(5)),
-                                          )),
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  image: NetworkImage(DataFields
+                                                          .teacherQuestionImage[
+                                                              0]
+                                                          .image ??
+                                                      ""),
+                                                  fit: BoxFit.fill),
+                                              border: Border.all(
+                                                width: 2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
+                                        ),
+                                      ),
                                     );
                                   })
                               : const Center(

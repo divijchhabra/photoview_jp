@@ -69,6 +69,10 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                             child: Column(
                               children: [
                                 Container(
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(width: 2),
+                                      borderRadius: BorderRadius.circular(20)),
                                   child: Column(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceAround,
@@ -122,10 +126,6 @@ class _PeerToPeerQuestionState extends State<PeerToPeerQuestion> {
                                       )
                                     ],
                                   ),
-                                  width: MediaQuery.of(context).size.width,
-                                  decoration: BoxDecoration(
-                                      border: Border.all(width: 2),
-                                      borderRadius: BorderRadius.circular(20)),
                                 ),
                                 const SizedBox(
                                   height: 10,
@@ -180,7 +180,7 @@ class EditButton extends StatelessWidget {
             Container(),
             const Text(
               "Edit Mark or Comment",
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 color: Colors.white,
               ),
@@ -211,12 +211,12 @@ class ExamineButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Text(
+          children: const [
+            Text(
               "✎  Examine",
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
-            const Icon(
+            Icon(
               Icons.arrow_forward,
               size: 15,
               color: Colors.white,

@@ -19,7 +19,8 @@ class EditImage extends StatefulWidget {
 }
 
 class _EditImageState extends State<EditImage> {
-  List<Stroke> lines = <Stroke>[];
+  GlobalKey renderKey = GlobalKey();
+  List<Stroke> lines = <Stroke>[], undoLines = <Stroke>[];
   late double height, width;
   Stroke? line;
   bool isFreehand = false, isText = false;
@@ -31,6 +32,7 @@ class _EditImageState extends State<EditImage> {
 
   StreamController<List<Stroke>> linesStreamController =
       StreamController<List<Stroke>>.broadcast();
+  double scaleValue = 0.0;
 
   @override
   void initState() {
@@ -50,10 +52,10 @@ class _EditImageState extends State<EditImage> {
       simulatePressure: details.kind != PointerDeviceKind.stylus,
     );
 
-    final box = context.findRenderObject() as RenderBox;
-    final fakeOffset = box.globalToLocal(details.position);
-    final offset =
-        Offset(fakeOffset.dx - width * 10, fakeOffset.dy - height * 15);
+    final box = renderKey.currentContext!.findRenderObject() as RenderBox;
+    final offset = box.globalToLocal(details.position);
+    // final offset =
+    //     Offset(fakeOffset.dx - width * 10, fakeOffset.dy - height * 15);
     late final Point point;
     if (details.kind == PointerDeviceKind.stylus) {
       point = Point(
@@ -71,10 +73,10 @@ class _EditImageState extends State<EditImage> {
   }
 
   void onPointerMove(PointerMoveEvent details) {
-    final box = context.findRenderObject() as RenderBox;
-    final fakeOffset = box.globalToLocal(details.position);
-    final offset =
-        Offset(fakeOffset.dx - width * 10, fakeOffset.dy - height * 15);
+    final box = renderKey.currentContext!.findRenderObject() as RenderBox;
+    final offset = box.globalToLocal(details.position);
+    // final offset =
+    //     Offset(fakeOffset.dx - width * 10, fakeOffset.dy - height * 15);
     late final Point point;
     if (details.kind == PointerDeviceKind.stylus) {
       point = Point(
@@ -94,62 +96,76 @@ class _EditImageState extends State<EditImage> {
   void onPointerUp(PointerUpEvent details) {
     lines = List.from(lines)..add(line!);
     linesStreamController.add(lines);
+    setState(() {});
   }
 
-  Future<void> clear() async {
-    setState(() {
-      lines = [];
-      line = null;
-    });
+  void clear() {
+    if (lines.isNotEmpty) {
+      setState(() {
+        lines.clear();
+        line = null;
+        undoLines.clear();
+      });
+    }
+  }
+
+  void undo() {
+    if (lines.isNotEmpty) {
+      setState(() {
+        Stroke undoLine = lines[lines.length - 1];
+        undoLines.add(undoLine);
+        lines.remove(undoLine);
+        line = null;
+      });
+    }
+  }
+
+  void redo() {
+    if (undoLines.isNotEmpty) {
+      setState(() {
+        Stroke redoLine = undoLines[undoLines.length - 1];
+        lines.add(redoLine);
+        undoLines.remove(redoLine);
+      });
+    }
   }
 
   Widget buildCurrentPath(BuildContext context) {
-    return Container(
-      height: height * 70,
-      width: width * 90,
-      margin:
-          EdgeInsets.symmetric(horizontal: width * 5, vertical: height * 1.5),
-      child: Listener(
-        onPointerDown: onPointerDown,
-        onPointerMove: onPointerMove,
-        onPointerUp: onPointerUp,
-        child: RepaintBoundary(
-          child: Container(
-              color: Colors.transparent,
-              child: StreamBuilder<Stroke>(
-                  stream: currentLineStreamController.stream,
-                  builder: (context, snapshot) {
-                    return CustomPaint(
-                      size: Size(width * 90, height * 70),
-                      painter: Sketcher(
-                        lines: line == null ? [] : [line!],
-                        options: options,
-                      ),
-                    );
-                  })),
-        ),
+    return Listener(
+      onPointerDown: onPointerDown,
+      onPointerMove: onPointerMove,
+      onPointerUp: onPointerUp,
+      child: SizedBox(
+        height: height * 70,
+        width: width * 90,
+        child: StreamBuilder<Stroke>(
+            stream: currentLineStreamController.stream,
+            builder: (context, snapshot) {
+              return CustomPaint(
+                painter: Sketcher(
+                  lines: line == null ? [] : [line!],
+                  options: options,
+                ),
+              );
+            }),
       ),
     );
   }
 
   Widget buildAllPaths(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: height * 70,
       width: width * 90,
-      margin:
-          EdgeInsets.symmetric(horizontal: width * 5, vertical: height * 1.5),
-      child: RepaintBoundary(
-        child: StreamBuilder<List<Stroke>>(
-          stream: linesStreamController.stream,
-          builder: (context, snapshot) {
-            return CustomPaint(
-              painter: Sketcher(
-                lines: lines,
-                options: options,
-              ),
-            );
-          },
-        ),
+      child: StreamBuilder<List<Stroke>>(
+        stream: linesStreamController.stream,
+        builder: (context, snapshot) {
+          return CustomPaint(
+            painter: Sketcher(
+              lines: lines,
+              options: options,
+            ),
+          );
+        },
       ),
     );
   }
@@ -158,7 +174,6 @@ class _EditImageState extends State<EditImage> {
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height / 100;
     width = MediaQuery.of(context).size.width / 100;
-    Offset offset = Offset.zero;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -166,14 +181,35 @@ class _EditImageState extends State<EditImage> {
         iconTheme: const IconThemeData(color: Colors.black),
         actions: [
           Padding(
+            padding: EdgeInsets.only(right: width * 2),
+            child: IconButton(
+                onPressed: undo,
+                icon: Icon(
+                  Icons.undo,
+                  size: height * 3,
+                  color: lines.isEmpty ? Colors.grey : Colors.black,
+                )),
+          ),
+          Padding(
+            padding: EdgeInsets.only(right: width * 2),
+            child: IconButton(
+                onPressed: redo,
+                icon: Icon(
+                  Icons.redo,
+                  size: height * 3,
+                  color: undoLines.isEmpty ? Colors.grey : Colors.black,
+                )),
+          ),
+          Padding(
             padding: EdgeInsets.only(right: width * 5),
             child: IconButton(
                 onPressed: clear,
                 icon: Icon(
                   Icons.clear_all,
                   size: height * 4,
+                  color: lines.isEmpty ? Colors.grey : Colors.black,
                 )),
-          )
+          ),
         ],
       ),
       body: SafeArea(
@@ -188,19 +224,30 @@ class _EditImageState extends State<EditImage> {
               margin: EdgeInsets.symmetric(
                   horizontal: width * 5, vertical: height * 1.5),
               decoration: BoxDecoration(
-                  color: Colors.blue,
-                  image: DecorationImage(
-                      image: NetworkImage(widget.imageUrl), fit: BoxFit.fill),
+                  color: Colors.black,
                   border: Border.all(
                     width: 2,
                   ),
                   borderRadius: BorderRadius.circular(5)),
               alignment: Alignment.center,
-              child: Stack(
-                children: [
-                  buildAllPaths(context),
-                  if (isFreehand) buildCurrentPath(context),
-                ],
+              child: InteractiveViewer(
+                panEnabled: !isFreehand,
+                scaleEnabled: !isFreehand,
+                child: Container(
+                  height: height * 70,
+                  width: width * 90,
+                  key: renderKey,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: NetworkImage(widget.imageUrl),
+                          fit: BoxFit.fill)),
+                  child: Stack(
+                    children: [
+                      buildAllPaths(context),
+                      if (isFreehand) buildCurrentPath(context),
+                    ],
+                  ),
+                ),
               ),
             ),
             Padding(
